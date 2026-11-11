@@ -1,4 +1,3 @@
-
 /* =========================================
    HELPMATH — MOTOR PRINCIPAL
    ========================================= */
@@ -149,54 +148,36 @@ function analisarPolinomio(texto) {
   exp = exp
     .replace(/f\(x\)\s*=/g, "")
     .replace(/y\s*=/g, "")
-    .replace(/\s+/g, "")
-    .replace(/\*/g, "");
+    .replace(/\s+/g, "");
 
-  exp = exp.replace(/-/g, "+-");
-
-  if (exp.startsWith("+")) {
-    exp = exp.slice(1);
-  }
-
-  const termos = exp.split("+").filter(Boolean);
+  // Separa em termos mantendo o sinal. Cada termo precisa ter EXATAMENTE
+  // o formato "coef", "coef x", "coef*x" ou "coef x^n"; qualquer outra coisa
+  // gera erro em vez de um resultado errado silencioso.
+  const termos = exp.match(/[+-]?[^+-]+/g) || [];
+  const formatoTermo = /^([+-]?)(\d+(?:\.\d+)?|\.\d+)?(?:(\*?)x(?:\^(\d+))?)?$/;
 
   const coeficientes = {};
 
-  for (let termo of termos) {
-    let coeficiente;
-    let grau;
+  for (const termo of termos) {
+    const m = termo.match(formatoTermo);
 
-    if (termo.includes("x")) {
-      const partes = termo.split("x");
-
-      let parteCoef = partes[0];
-      const parteGrau = partes[1];
-
-      if (parteCoef === "" || parteCoef === "+") {
-        coeficiente = 1;
-      } else if (parteCoef === "-") {
-        coeficiente = -1;
-      } else {
-        coeficiente = Number(parteCoef);
-      }
-
-      if (parteGrau === "") {
-        grau = 1;
-      } else if (parteGrau.startsWith("^")) {
-        grau = Number(parteGrau.slice(1));
-      } else {
-        throw new Error("Formato de potência inválido.");
-      }
-    } else {
-      coeficiente = Number(termo);
-      grau = 0;
+    if (!m || (!m[2] && !termo.includes("x")) || (m[3] && !m[2])) {
+      throw new Error(`Não foi possível interpretar o termo "${termo}". No modo básico só são aceitos polinômios como 3x^2 + 2x - 5.`);
     }
 
-    if (!Number.isFinite(coeficiente) || !Number.isInteger(grau) || grau < 0 || grau > 20) {
-      throw new Error("Não foi possível interpretar essa expressão.");
+    const sinal = m[1] === "-" ? -1 : 1;
+    const coeficiente = sinal * (m[2] !== undefined ? Number(m[2]) : 1);
+    const grau = termo.includes("x") ? (m[4] !== undefined ? Number(m[4]) : 1) : 0;
+
+    if (grau > 20) {
+      throw new Error("Grau muito alto para o modo básico (máximo 20).");
     }
 
     coeficientes[grau] = (coeficientes[grau] || 0) + coeficiente;
+  }
+
+  if (!termos.length) {
+    throw new Error("Digite um polinômio. Exemplo: 3x^2 + 2x - 5.");
   }
 
   return coeficientes;
@@ -321,7 +302,8 @@ function criarPasso(titulo, descricao) {
 // =========================================
 
 function resolverFuncao(coeficientes) {
-  const grau = Math.max(...Object.keys(coeficientes).map(Number));
+  const grausUsados = Object.keys(coeficientes).map(Number).filter(g => Math.abs(coeficientes[g]) > 1e-12);
+  const grau = grausUsados.length ? Math.max(...grausUsados) : 0;
 
   if (grau > 2) {
     return `
@@ -361,7 +343,11 @@ function resolverFuncao(coeficientes) {
     const b = coeficientes[1] || 0;
     const c = coeficientes[0] || 0;
 
-    const delta = b * b - 4 * a * c;
+    let delta = b * b - 4 * a * c;
+    // Erro de ponto flutuante: 0.2² - 4·0.01 dá 6.9e-18 em vez de 0.
+    if (Math.abs(delta) < 1e-12 * Math.max(1, b * b, Math.abs(4 * a * c))) {
+      delta = 0;
+    }
 
     html += `
       ${criarPasso("Identificação", "Esta é uma função quadrática, representada por f(x) = ax² + bx + c.")}
@@ -477,15 +463,15 @@ function resolverLimite(coeficientes, texto) {
 function identificarAssunto(texto) {
   const t = texto.toLowerCase();
 
-  if (t.includes("derivada") || t.includes("derivar") || t.includes("f'(x)")) {
+  if (t.includes("derivada") || t.includes("derivar") || t.includes("f'(x)") || t.includes("d/dx")) {
     return "derivadas";
   }
 
-  if (t.includes("integral") || t.includes("integrar")) {
+  if (t.includes("integral") || t.includes("integrar") || t.includes("∫")) {
     return "integrais";
   }
 
-  if (t.includes("limite") || t.includes("lim ")) {
+  if (t.includes("limite") || /\blim\s*\(/.test(t) || t.includes("lim ")) {
     return "limites";
   }
 
@@ -499,12 +485,14 @@ function identificarAssunto(texto) {
 
 function resolverModoBasico(textoOriginal, tipo) {
   // Motor antigo (só polinômios) — usado apenas se o motor completo não carregar.
-  if (tipo === "automatico") {
-    tipo = identificarAssunto(textoOriginal);
+  const pareceEquacao = /=/.test(textoOriginal) && !/^\s*(f\(x\)|y)\s*=/i.test(textoOriginal);
+
+  if (tipo === "equacoes" || (tipo === "automatico" && pareceEquacao)) {
+    throw new Error("Equações precisam do motor completo. Abra a página por um servidor (ex.: Live Server).");
   }
 
-  if (tipo === "equacoes" || (tipo === "automatico" && /=/.test(textoOriginal) && !/f\(x\)\s*=/.test(textoOriginal))) {
-    throw new Error("Equações precisam do motor completo. Abra a página por um servidor (ex.: Live Server).");
+  if (tipo === "automatico") {
+    tipo = identificarAssunto(textoOriginal);
   }
 
   const limpo = textoOriginal
@@ -533,6 +521,7 @@ const motor = {
   estado: "carregando", // carregando | pronto | falhou
   pendentes: new Map(),
   proximoId: 1,
+  aguardandoPronto: [],
   config: window.HELPMATH_CONFIG || {}
 };
 
@@ -561,8 +550,10 @@ function iniciarMotor() {
 
     if (msg.tipo === "pronto") {
       atualizarStatus("pronto", "Motor matemático pronto");
+      motor.aguardandoPronto.splice(0).forEach(f => f());
     } else if (msg.tipo === "falha") {
       atualizarStatus("falhou", "Modo básico (sem conexão com o motor)");
+      motor.aguardandoPronto.splice(0).forEach(f => f());
       console.error("HelpMath: falha ao carregar o motor:", msg.erro);
       motor.pendentes.forEach(p => p.reject(new Error("motor indisponível")));
       motor.pendentes.clear();
@@ -580,13 +571,27 @@ function iniciarMotor() {
     console.error("HelpMath: erro no worker:", evento.message);
     if (motor.estado === "carregando") {
       atualizarStatus("falhou", "Modo básico (abra pelo servidor)");
+      motor.aguardandoPronto.splice(0).forEach(f => f());
     }
   };
 
   motor.worker.postMessage({ tipo: "iniciar", config: motor.config });
 }
 
-function resolverNoMotor(texto, tipo) {
+function esperarMotor() {
+  // O Pyodide pode levar bem mais de 30 s pra baixar numa conexão lenta.
+  // Antes, o cronômetro começava durante o carregamento: o 1º cálculo
+  // "estourava o tempo", o worker era reiniciado e o download recomeçava do zero.
+  if (motor.estado !== "carregando") return Promise.resolve();
+  return new Promise(resolve => motor.aguardandoPronto.push(resolve));
+}
+
+async function resolverNoMotor(texto, tipo) {
+  await esperarMotor();
+  if (motor.estado !== "pronto") {
+    throw new Error("motor indisponível");
+  }
+
   return new Promise((resolve, reject) => {
     const id = motor.proximoId++;
 
