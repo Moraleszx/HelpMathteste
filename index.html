@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="HelpMath - Resolva, compreenda e aprenda matemática.">
+  <title>HelpMath | Sua dúvida. Nossa solução.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- KaTeX: renderização das fórmulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+
+  <!-- O nome precisa bater exatamente com o arquivo (servidores Linux/GitHub Pages diferenciam maiúsculas) -->
+  <link rel="stylesheet" href="Style.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar" id="sidebar">
+
+      <a href="#" class="brand">
+        <span class="brand-icon">∑</span>
+        <span>Help<span>Math</span></span>
+      </a>
+
+      <div class="sidebar-section">
+        <span class="section-label">MENU PRINCIPAL</span>
+
+        <button class="nav-item active" data-page="inicio">
+          <span>⌂</span> Início
+        </button>
+
+        <button class="nav-item" data-page="funcoes">
+          <span>ƒ</span> Funções
+        </button>
+
+        <button class="nav-item" data-page="limites">
+          <span>∞</span> Limites
+        </button>
+
+        <button class="nav-item" data-page="derivadas">
+          <span>∂</span> Derivadas
+        </button>
+
+        <button class="nav-item" data-page="integrais">
+          <span>∫</span> Integrais
+        </button>
+
+        <button class="nav-item" data-page="equacoes">
+          <span>≡</span> Equações
+        </button>
+
+      </div>
+
+      <div class="sidebar-section">
+        <span class="section-label">SEU ESPAÇO</span>
+
+        <button class="nav-item" data-page="historico">
+          <span>◷</span> Histórico
+        </button>
+
+        <button class="nav-item" data-page="sobre">
+          <span>ⓘ</span> Sobre o HelpMath
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="footer-symbol">✦</div>
+        <p>Aprender matemática ficou mais simples.</p>
+        <span>HELP MATH · 2026</span>
+      </div>
+
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <main class="main-content">
+
+      <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+          ☰
+        </button>
+
+        <div class="breadcrumb" id="breadcrumb">
+          Início <span>/</span> Central matemática
+        </div>
+
+        <div class="topbar-right">
+          <span class="status-indicator"></span>
+          <span class="status-text">Sistema disponível</span>
+        </div>
+      </header>
+
+      <!-- PÁGINA INICIAL -->
+      <section class="page active" id="page-inicio">
+
+        <div class="welcome">
+          <span class="eyebrow">✦ SEU ASSISTENTE MATEMÁTICO</span>
+
+          <h1>Sua dúvida.<br>
+            <span>Nossa solução.</span>
+          </h1>
+
+          <p>
+            Resolva expressões, encontre incógnitas, visualize gráficos
+            e entenda cada etapa da resolução matemática.
+          </p>
+        </div>
+
+        <!-- ÁREA DE ENTRADA -->
+        <section class="calculator-card">
+
+          <div class="card-heading">
+            <div>
+              <span class="card-label">CENTRAL DE RESOLUÇÃO</span>
+              <h2>O que vamos resolver hoje?</h2>
+            </div>
+
+            <span class="calculator-icon">∑</span>
+          </div>
+
+          <label for="assunto">Escolha o conteúdo matemático</label>
+
+          <select id="assunto">
+            <option value="automatico">Identificar automaticamente</option>
+            <option value="funcoes">Funções matemáticas</option>
+            <option value="limites">Limites</option>
+            <option value="derivadas">Derivadas</option>
+            <option value="integrais">Integrais</option>
+            <option value="equacoes">Equações</option>
+          </select>
+
+          <label for="expressao">Digite sua expressão ou dúvida</label>
+
+          <div class="expression-wrapper">
+            <textarea
+              id="expressao"
+              rows="3"
+              placeholder="Ex: lim(x->0) (sen(x) - x)/x^3   ·   derivada de x^x   ·   ∫[0, π] x sen(x) dx"
+            ></textarea>
+
+            <span class="expression-hint">
+              Você pode escrever expressões ou descrever seu problema em português.
+            </span>
+          </div>
+
+          <div class="input-examples">
+            <span>EXEMPLOS:</span>
+            <button class="example-btn" data-example="f(x) = x^3 - 3x">
+              Função
+            </button>
+            <button class="example-btn" data-example="limite de (sen(x) - x)/x^3 quando x tende a 0">
+              Limite
+            </button>
+            <button class="example-btn" data-example="derivada de x^x">
+              Derivada
+            </button>
+            <button class="example-btn" data-example="∫[0, π] x sen(x) dx">
+              Integral
+            </button>
+            <button class="example-btn" data-example="sqrt(x + 5) = x - 1">
+              Equação
+            </button>
+          </div>
+
+          <div class="card-actions">
+            <button class="clear-btn" id="limpar">
+              Limpar
+            </button>
+
+            <button class="solve-btn" id="calcular">
+              <span>Resolver expressão</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <p class="error-message" id="erro" role="alert"></p>
+
+          <details class="syntax-help">
+            <summary>Como escrever as expressões</summary>
+            <div class="syntax-grid">
+              <div><strong>Potência e raiz</strong><code>x^2 · x² · sqrt(x) · √x · raiz(x)</code></div>
+              <div><strong>Funções</strong><code>sen cos tg sec cossec cotg arcsen arctg ln log abs |x|</code></div>
+              <div><strong>Constantes</strong><code>pi · π · e · oo (∞) · i</code></div>
+              <div><strong>Limites</strong><code>lim(x->0) sen(x)/x · lim(x->0+) x^x · ... quando x tende a 2</code></div>
+              <div><strong>Derivadas</strong><code>d/dx x^x · segunda derivada de ... · d^n/dx^n x e^x</code></div>
+              <div><strong>Implícita</strong><code>derivada implícita de x^3 + y^3 = 6xy</code></div>
+              <div><strong>Integrais</strong><code>∫ x² e^x dx · ∫[0, 1] ln(x) dx · integral de 0 a pi de sen(x)</code></div>
+              <div><strong>Equações</strong><code>2^x = x^2 · sen(x) = cos(2x) · sqrt(x + 5) = x - 1</code></div>
+              <div><strong>Observações</strong><code>log = base 10 · ln = natural · 2,5 = 2.5 · 2x = 2·x</code></div>
+            </div>
+          </details>
+
+        </section>
+
+        <!-- RESULTADO -->
+        <section class="result-section" id="area-resultado" hidden>
+
+          <div class="result-heading">
+            <div>
+              <span class="card-label">ANÁLISE MATEMÁTICA</span>
+              <h2>Resultado da resolução</h2>
+            </div>
+
+            <span class="result-status">Concluído</span>
+          </div>
+
+          <div id="resultado"></div>
+
+        </section>
+
+        <!-- CONTEÚDOS -->
+        <section class="topics-section">
+
+          <div class="section-heading">
+            <div>
+              <span class="card-label">EXPLORE</span>
+              <h2>Conteúdos matemáticos</h2>
+            </div>
+            <span class="section-description">Escolha uma área para começar</span>
+          </div>
+
+          <div class="topics-grid">
+
+            <button class="topic-card" data-topic="funcoes">
+              <span class="topic-icon blue">ƒ</span>
+              <strong>Funções</strong>
+              <span>Afim, quadrática, exponencial e outras.</span>
+              <span class="topic-arrow">↗</span>
+            </button>
+
+            <button class="topic-card" data-topic="limites">
+              <span class="topic-icon purple">∞</span>
+              <strong>Limites</strong>
+              <span>Limites laterais, infinitos e continuidade.</span>
+              <span class="topic-arrow">↗</span>
+            </button>
+
+            <button class="topic-card" data-topic="derivadas">
+              <span class="topic-icon green">∂</span>
+              <strong>Derivadas</strong>
+              <span>Regras, aplicações e reta tangente.</span>
+              <span class="topic-arrow">↗</span>
+            </button>
+
+            <button class="topic-card" data-topic="integrais">
+              <span class="topic-icon orange">∫</span>
+              <strong>Integrais</strong>
+              <span>Integrais definidas e indefinidas.</span>
+              <span class="topic-arrow">↗</span>
+            </button>
+
+          </div>
+        </section>
+
+        <footer class="main-footer">
+          <span>HelpMath © 2026</span>
+          <span>Desenvolvido para facilitar seu aprendizado.</span>
+        </footer>
+
+      </section>
+
+      <!-- PÁGINAS DOS CONTEÚDOS -->
+      <section class="page secondary-page" id="page-funcoes">
+        <span class="eyebrow">MATEMÁTICA</span>
+        <h1>Funções</h1>
+        <p>Explore, analise e resolva funções matemáticas.</p>
+        <div class="placeholder-card">
+          <span>ƒ(x)</span>
+          <h2>Laboratório de funções</h2>
+          <p>Insira sua função na central de resolução para começar.</p>
+          <button class="go-home">Ir para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-limites">
+        <span class="eyebrow">CÁLCULO DIFERENCIAL</span>
+        <h1>Limites</h1>
+        <p>Resolva limites e compreenda seu comportamento.</p>
+        <div class="placeholder-card">
+          <span>lim</span>
+          <h2>Central de limites</h2>
+          <p>Insira seu problema na central de resolução.</p>
+          <button class="go-home">Ir para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-derivadas">
+        <span class="eyebrow">CÁLCULO DIFERENCIAL</span>
+        <h1>Derivadas</h1>
+        <p>Calcule derivadas e entenda as regras aplicadas.</p>
+        <div class="placeholder-card">
+          <span>f'(x)</span>
+          <h2>Central de derivadas</h2>
+          <p>Insira sua expressão na central de resolução.</p>
+          <button class="go-home">Ir para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-integrais">
+        <span class="eyebrow">CÁLCULO INTEGRAL</span>
+        <h1>Integrais</h1>
+        <p>Resolva integrais e analise áreas e acumulações.</p>
+        <div class="placeholder-card">
+          <span>∫</span>
+          <h2>Central de integrais</h2>
+          <p>Insira sua expressão na central de resolução.</p>
+          <button class="go-home">Ir para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-equacoes">
+        <span class="eyebrow">ÁLGEBRA</span>
+        <h1>Equações</h1>
+        <p>Encontre o valor da incógnita, com verificação de cada solução.</p>
+        <div class="placeholder-card">
+          <span>x = ?</span>
+          <h2>Central de equações</h2>
+          <p>Insira sua equação na central de resolução.</p>
+          <button class="go-home">Ir para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-historico">
+        <span class="eyebrow">SEU ESPAÇO</span>
+        <h1>Histórico</h1>
+        <p>Consulte suas resoluções anteriores.</p>
+        <div class="placeholder-card">
+          <span>◷</span>
+          <h2>Suas atividades</h2>
+          <p>Seu histórico de cálculos aparecerá aqui.</p>
+          <button class="go-home">Voltar para a central →</button>
+        </div>
+      </section>
+
+      <section class="page secondary-page" id="page-sobre">
+        <span class="eyebrow">CONHEÇA O PROJETO</span>
+        <h1>Sobre o HelpMath</h1>
+        <p>Sua dúvida. Nossa solução.</p>
+        <div class="placeholder-card">
+          <span>∑</span>
+          <h2>Matemática sem complicação.</h2>
+          <p>
+            O HelpMath é uma plataforma de apoio matemático que busca
+            transformar dúvidas em aprendizado por meio de resoluções
+            objetivas, explicações e visualizações.
+          </p>
+          <button class="go-home">Voltar para a central →</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
