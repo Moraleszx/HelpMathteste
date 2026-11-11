@@ -31,7 +31,11 @@ async function iniciar(config = {}) {
   resolverPy = pyodide.globals.get("resolver");
 
   // aquece o SymPy (a primeira chamada importa vários módulos)
-  resolverPy("lim(x->0) sin(x)/x", "automatico");
+  try {
+    resolverPy("lim(x->0) sin(x)/x", "automatico");
+  } catch (e) {
+    console.warn("HelpMath: aquecimento falhou (o motor continua ativo):", e);
+  }
 }
 
 self.onmessage = async (evento) => {
@@ -50,6 +54,9 @@ self.onmessage = async (evento) => {
 
   if (msg.tipo === "resolver") {
     try {
+      if (!pronto) {
+        throw new Error("o motor ainda não foi iniciado");
+      }
       await pronto;
       const json = resolverPy(msg.texto, msg.assunto || "automatico");
       self.postMessage({ tipo: "resultado", id: msg.id, dados: JSON.parse(json) });
